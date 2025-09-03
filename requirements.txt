@@ -8,3 +8,4 @@ qdrant-client
 requests
 tqdm
 numpy
+gunicorn
