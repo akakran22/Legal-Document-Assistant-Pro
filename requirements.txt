@@ -1,0 +1,10 @@
+flask
+langchain
+langchain-community
+pypdf
+python-dotenv
+groq
+qdrant-client
+requests
+tqdm
+numpy

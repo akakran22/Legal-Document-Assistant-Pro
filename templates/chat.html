@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indian Legal AI Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-gold: #C9A96E;
+            --dark-blue: #1a237e;
+            --light-gold: #f5f1e8;
+            --dark-text: #2c3e50;
+            --light-text: #7f8c8d;
+            --white: #ffffff;
+            --border-color: #e0e6ed;
+            --shadow-light: rgba(201, 169, 110, 0.1);
+            --shadow-medium: rgba(26, 35, 126, 0.15);
+            --gradient-gold: linear-gradient(135deg, #C9A96E, #B8956A);
+            --gradient-blue: linear-gradient(135deg, #1a237e, #3f51b5);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--light-gold) 0%, var(--white) 100%);
+            color: var(--dark-text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            background: var(--gradient-blue);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            color: var(--white);
+            box-shadow: 0 10px 30px var(--shadow-medium);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255,255,255,0.1) 10px,
+                rgba(255,255,255,0.1) 20px
+            );
+            animation: shimmer 3s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .chat-container {
+            display: flex;
+            gap: 30px;
+            flex: 1;
+            min-height: 600px;
+        }
+
+        .chat-section {
+            flex: 2;
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px var(--shadow-light);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .chat-section:hover {
+            transform: translateY(-5px);
+        }
+
+        .info-section {
+            flex: 1;
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px var(--shadow-light);
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .chat-header {
+            background: var(--gradient-gold);
+            color: var(--white);
+            padding: 25px 30px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            text-align: center;
+            position: relative;
+        }
+
+        .chat-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 2px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            max-height: 500px;
+            scroll-behavior: smooth;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: var(--light-gold);
+            border-radius: 4px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: var(--primary-gold);
+            border-radius: 4px;
+        }
+
+        .message {
+            margin-bottom: 25px;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .user-message {
+            text-align: right;
+        }
+
+        .user-message .message-content {
+            background: var(--gradient-blue);
+            color: var(--white);
+            display: inline-block;
+            padding: 15px 25px;
+            border-radius: 25px 25px 5px 25px;
+            max-width: 80%;
+            font-size: 1rem;
+            box-shadow: 0 5px 15px rgba(26, 35, 126, 0.3);
+            position: relative;
+        }
+
+        .ai-message .message-content {
+            background: linear-gradient(135deg, var(--light-gold), var(--white));
+            color: var(--dark-text);
+            border: 2px solid var(--primary-gold);
+            padding: 20px 25px;
+            border-radius: 25px 25px 25px 5px;
+            max-width: 90%;
+            box-shadow: 0 8px 25px var(--shadow-light);
+        }
+
+        .ai-message .message-content h2 {
+            color: var(--dark-blue);
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-gold);
+        }
+
+        .ai-message .message-content h3 {
+            color: var(--dark-blue);
+            font-size: 1.1rem;
+            margin: 15px 0 10px 0;
+        }
+
+        .ai-message .message-content strong {
+            color: var(--dark-blue);
+            font-weight: 600;
+        }
+
+        .ai-message .message-content ul, 
+        .ai-message .message-content ol {
+            margin: 10px 0;
+            padding-left: 25px;
+        }
+
+        .ai-message .message-content li {
+            margin-bottom: 8px;
+        }
+
+        .chat-input-container {
+            padding: 30px;
+            background: linear-gradient(135deg, var(--light-gold), var(--white));
+            border-top: 1px solid var(--border-color);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .chat-input {
+            width: 100%;
+            padding: 20px 25px;
+            border: 2px solid var(--border-color);
+            border-radius: 25px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: none;
+            transition: all 0.3s ease;
+            background: var(--white);
+            min-height: 60px;
+            max-height: 120px;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--primary-gold);
+            box-shadow: 0 0 20px var(--shadow-light);
+            transform: translateY(-2px);
+        }
+
+        .send-button {
+            background: var(--gradient-blue);
+            color: var(--white);
+            border: none;
+            padding: 20px 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px var(--shadow-medium);
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .send-button:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px var(--shadow-medium);
+        }
+
+        .send-button:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        .send-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .info-section h3 {
+            color: var(--dark-blue);
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-gold);
+            text-align: center;
+        }
+
+        .info-item {
+            background: linear-gradient(135deg, var(--light-gold), var(--white));
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary-gold);
+            transition: transform 0.3s ease;
+        }
+
+        .info-item:hover {
+            transform: translateX(5px);
+        }
+
+        .info-item h4 {
+            color: var(--dark-blue);
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .info-item p {
+            color: var(--light-text);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #4caf50, #45a049);
+            color: white;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .loading {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .loading-dot {
+            width: 10px;
+            height: 10px;
+            background: var(--primary-gold);
+            border-radius: 50%;
+            animation: loadingBounce 1.5s ease-in-out infinite;
+        }
+
+        .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+        .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes loadingBounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        .sources-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sources-title {
+            color: var(--dark-blue);
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .source-item {
+            background: rgba(201, 169, 110, 0.1);
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 3px solid var(--primary-gold);
+            font-size: 0.9rem;
+        }
+
+        .source-meta {
+            color: var(--light-text);
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .chat-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .header p {
+                font-size: 1rem;
+            }
+            
+            .chat-messages {
+                max-height: 400px;
+                padding: 20px;
+            }
+            
+            .chat-input-container {
+                padding: 20px;
+            }
+        }
+
+        /* Responsive typography */
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .user-message .message-content,
+            .ai-message .message-content {
+                max-width: 95%;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚖️ Indian Legal AI Assistant</h1>
+            <p>Your intelligent companion for Indian legal queries and documentation</p>
+        </div>
+
+        <div class="chat-container">
+            <div class="chat-section">
+                <div class="chat-header">
+                    💬 Legal Consultation Chat
+                </div>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message ai-message">
+                        <div class="message-content">
+                            <h2>🙏 Welcome to Indian Legal AI Assistant</h2>
+                            <p>I'm here to help you with questions about Indian law based on official legal documents including:</p>
+                            <ul>
+                                <li><strong>Constitution of India</strong></li>
+                                <li><strong>Indian Penal Code</strong></li>
+                                <li><strong>Consumer Protection Act 2019</strong></li>
+                                <li><strong>Income Tax Act 1961</strong></li>
+                                <li><strong>Information Technology Act 2000</strong></li>
+                                <li>And many more Indian legal acts...</li>
+                            </ul>
+                            <p><em>Please ask me any legal question and I'll provide detailed information with proper citations.</em></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-input-container">
+                    <div class="input-group">
+                        <div class="input-wrapper">
+                            <textarea 
+                                id="questionInput" 
+                                class="chat-input" 
+                                placeholder="Ask any question about Indian law..."
+                                rows="1"
+                            ></textarea>
+                        </div>
+                        <button id="askButton" class="send-button" title="Send Question">
+                            ➤
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span>System Online & Ready</span>
+                </div>
+
+                <h3>📚 Legal Database Coverage</h3>
+                
+                <div class="info-item">
+                    <h4>🏛️ Constitutional Law</h4>
+                    <p>Constitution of India 2024 with all amendments and fundamental rights</p>
+                </div>
+
+                <div class="info-item">
+                    <h4>⚖️ Criminal Law</h4>
+                    <p>Indian Penal Code, Criminal Procedure Code 1973, Evidence Act 1872</p>
+                </div>
+
+                <div class="info-item">
+                    <h4>🏢 Corporate & Commercial</h4>
+                    <p>Companies Act 2013, Contract Act 1872, Transfer of Property Act</p>
+                </div>
+
+                <div class="info-item">
+                    <h4>🛡️ Consumer Protection</h4>
+                    <p>Consumer Protection Act 2019, Trade Marks Act 1999</p>
+                </div>
+
+                <div class="info-item">
+                    <h4>💼 Labor & Tax Law</h4>
+                    <p>Income Tax Act 1961, Factories Act 1948, IT Act 2000</p>
+                </div>
+
+                <div class="info-item">
+                    <h4>👨‍👩‍👧‍👦 Family & Social</h4>
+                    <p>Juvenile Justice Act 2015, Protection from Domestic Violence Act</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        const questionInput = document.getElementById('questionInput');
+        const askButton = document.getElementById('askButton');
+
+        // Auto-resize textarea
+        questionInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        // Send question on Enter (but allow Shift+Enter for new line)
+        questionInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                askQuestion();
+            }
+        });
+
+        askButton.addEventListener('click', askQuestion);
+
+        async function askQuestion() {
+            const question = questionInput.value.trim();
+            if (!question) return;
+
+            // Add user message
+            addMessage(question, 'user');
+            questionInput.value = '';
+            questionInput.style.height = 'auto';
+            
+            // Show loading
+            showLoading();
+            askButton.disabled = true;
+
+            try {
+                const response = await fetch('/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ question: question })
+                });
+
+                const data = await response.json();
+                hideLoading();
+
+                if (data.error) {
+                    addMessage(`❌ Error: ${data.error}`, 'ai');
+                } else {
+                    addMessage(data.answer, 'ai', data.sources);
+                }
+            } catch (error) {
+                hideLoading();
+                addMessage('❌ Sorry, there was an error processing your request. Please try again.', 'ai');
+            } finally {
+                askButton.disabled = false;
+            }
+        }
+
+        function addMessage(content, sender, sources = null) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            
+            if (sender === 'ai') {
+                // Format AI response with proper HTML
+                contentDiv.innerHTML = formatAIResponse(content);
+                
+                // Add sources if available
+                if (sources && sources.length > 0) {
+                    const sourcesDiv = document.createElement('div');
+                    sourcesDiv.className = 'sources-section';
+                    sourcesDiv.innerHTML = `
+                        <div class="sources-title">📖 Sources Referenced:</div>
+                        ${sources.slice(0, 3).map(source => `
+                            <div class="source-item">
+                                <strong>${source.meta.source || 'Legal Document'}</strong>
+                                <div class="source-meta">Page ${source.meta.page || 'N/A'} • Relevance: ${(source.score * 100).toFixed(1)}%</div>
+                            </div>
+                        `).join('')}
+                    `;
+                    contentDiv.appendChild(sourcesDiv);
+                }
+            } else {
+                contentDiv.textContent = content;
+            }
+
+            messageDiv.appendChild(contentDiv);
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function formatAIResponse(text) {
+            // Convert markdown-like formatting to HTML with proper spacing
+            return text
+                .replace(/## (.*?)(?=\n|$)/g, '<h2>$1</h2>')
+                .replace(/### (.*?)(?=\n|$)/g, '<h3>$1</h3>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n\n/g, '</p><p>')
+                .replace(/^\s*(\d+)\.\s/gm, '<ol><li>')
+                .replace(/^\s*[-•]\s/gm, '<ul><li>')
+                .replace(/\n(?=<h[23]>)/g, '</p><p>') // Add proper spacing before headings
+                .replace(/(<\/h[23]>)\n/g, '$1') // Remove extra line after headings
+                .replace(/\n/g, '<br>')
+                .replace(/^/, '<p>')
+                .replace(/$/, '</p>')
+                .replace(/<p><\/p>/g, '') // Remove empty paragraphs
+                .replace(/<p>(<h[23]>.*?<\/h[23]>)<\/p>/g, '$1'); // Remove p tags around headings
+        }
+
+        function showLoading() {
+            const loadingDiv = document.createElement('div');
+            loadingDiv.id = 'loadingMessage';
+            loadingDiv.className = 'message ai-message';
+            loadingDiv.innerHTML = `
+                <div class="message-content">
+                    <div class="loading">
+                        <div class="loading-dot"></div>
+                        <div class="loading-dot"></div>
+                        <div class="loading-dot"></div>
+                    </div>
+                    <p style="text-align: center; margin-top: 10px; color: var(--light-text);">
+                        Analyzing legal documents and preparing response...
+                    </p>
+                </div>
+            `;
+            chatMessages.appendChild(loadingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideLoading() {
+            const loadingMessage = document.getElementById('loadingMessage');
+            if (loadingMessage) {
+                loadingMessage.remove();
+            }
+        }
+
+        // Initial focus on input
+        questionInput.focus();
+    </script>
+</body>
+</html>
