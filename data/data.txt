@@ -1,0 +1,17 @@
+Download pdf's from official gov websites.
+1) Consumer Protection Act 2019
+2) Income Tax Act 1961
+3) Indian Penal Code
+4) Motor Vehicle Act 1988
+5) The Code Of Criminal Procedure 1973
+6) The Companies Act 2013
+7) The Constitution Of India 2024
+8) The Factories Act 1948
+9) The Indian Contract Act 1872
+10) The Indian Evidence Act 1872
+11) The Information Technology Act
+12) The Juvenile Justice Act
+13) The Protection Of Women From Domestic Voilence Act
+14) The Trade Marks Act
+15) The Transfer Of Property Act
+etc..
